@@ -5,7 +5,7 @@ import dmr.DragonMounts.common.capability.types.NBTInterface;
 import dmr.DragonMounts.network.packets.ClearDragonInventoryPacket;
 import dmr.DragonMounts.network.packets.RequestDragonInventoryPacket;
 import dmr.DragonMounts.server.entity.TameableDragonEntity;
-import dmr.DragonMounts.server.worlddata.DragonWorldData;
+import dmr.DragonMounts.server.worlddata.DragonInventoryData;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -75,7 +75,7 @@ public class DragonInventoryHandler {
             return clientSideInventories.get(uuid);
         }
 
-        DragonWorldData data = DragonWorldData.getInstance(level);
+        DragonInventoryData data = DragonInventoryData.getInstance(level);
 
         if (!data.dragonInventories.containsKey(uuid) || data.dragonInventories.get(uuid) == null) {
             DMR.LOGGER.debug("Creating new dragon inventory for {}", uuid);

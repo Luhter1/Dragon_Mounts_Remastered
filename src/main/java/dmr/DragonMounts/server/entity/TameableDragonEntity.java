@@ -10,7 +10,6 @@ import dmr.DragonMounts.registry.ModCriterionTriggers;
 import dmr.DragonMounts.server.ai.DragonAI;
 import dmr.DragonMounts.server.entity.dragon.AbstractDragonEntity;
 import dmr.DragonMounts.server.inventory.DragonInventoryHandler.DragonInventory;
-import dmr.DragonMounts.server.worlddata.DragonWorldDataManager;
 import dmr.DragonMounts.util.PlayerStateUtils;
 import java.util.Optional;
 import lombok.Getter;
@@ -227,13 +226,6 @@ public class TameableDragonEntity extends AbstractDragonEntity {
                     handler.lastSummons.put(index, entity.getUUID());
                 }
             }
-
-            var worldData1 = DragonWorldDataManager.getInstance(level);
-            var worldData2 = DragonWorldDataManager.getInstance(transition.newLevel());
-
-            // Transfer the dragon inventory
-            worldData2.dragonInventories.put(getDragonUUID(), worldData1.dragonInventories.get(getDragonUUID()));
-            worldData1.dragonInventories.remove(getDragonUUID());
 
             return dragon;
         }

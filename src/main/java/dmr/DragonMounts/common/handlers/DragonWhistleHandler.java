@@ -13,7 +13,6 @@ import dmr.DragonMounts.registry.ModSounds;
 import dmr.DragonMounts.server.entity.DragonConstants;
 import dmr.DragonMounts.server.entity.TameableDragonEntity;
 import dmr.DragonMounts.server.items.DragonWhistleItem;
-import dmr.DragonMounts.server.worlddata.DragonWorldDataManager;
 import dmr.DragonMounts.util.PlayerStateUtils;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -266,31 +265,7 @@ public class DragonWhistleHandler {
                 return true; // Only process the remaining logic on the server side
             }
 
-            DragonInstance instance = cap.dragonInstances.get(summonItemIndex);
             TameableDragonEntity dragon = findDragon(player, summonItemIndex);
-
-            if (instance != null) {
-                var key = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(instance.getDimension()));
-
-                if (key != player.level.dimension()) {
-                    var server = player.level.getServer();
-                    assert server != null;
-                    var level = server.getLevel(key);
-
-                    var worldData1 = DragonWorldDataManager.getInstance(level);
-                    var worldData2 = DragonWorldDataManager.getInstance(player.level);
-
-                    // Transfer the dragon inventory
-                    worldData2.dragonInventories.put(
-                            instance.getUUID(), worldData1.dragonInventories.get(instance.getUUID()));
-                    worldData1.dragonInventories.remove(instance.getUUID());
-
-                    DMR.LOGGER.debug(
-                            "Transferring dragon inventory from {} to {}",
-                            instance.getDimension(),
-                            player.level.dimension().location());
-                }
-            }
 
             if (dragon != null) {
                 dragon.setHealth(Math.max(ModConstants.DragonConstants.MIN_DRAGON_HEALTH, dragon.getHealth()));
