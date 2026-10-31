@@ -16,6 +16,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -770,6 +771,55 @@ public class DragonWhistleTests {
 
         if (index2 != 1) {
             helper.fail("Dragon2 was bound to wrong whistle index: " + index2);
+        }
+
+        helper.succeed();
+    }
+
+    /**
+     * Tests that the armor attribute is applied on a freshly summoned dragon.
+     *
+     * <p>
+     * This test verifies that:
+     * 1. A tamed dragon wearing armor is bound to a whistle
+     * 2. Summoning a fresh dragon instance from the saved data applies the armor
+     * attribute so the dragon actually benefits from its armor protection
+     *
+     * @param helper The game test helper
+     */
+    @EmptyTemplate(floor = true)
+    @GameTest
+    @TestHolder
+    public static void armorAttributeAppliedAfterSummon(ExtendedGameTestHelper helper) {
+        var player = helper.makeTickingMockServerPlayerInLevel(GameType.DEFAULT_MODE);
+        player.moveToCentre();
+
+        // Spawn, tame and bind a dragon to a whistle
+        var dragon = helper.spawn(ModEntities.DRAGON_ENTITY.get(), DMRTestConstants.TEST_POS);
+        dragon.setBreed(DragonBreedsRegistry.getDefault());
+        dragon.tamedFor(player, true);
+        DragonWhistleHandler.setDragon(player, dragon, 0);
+
+        // Equip armor (stored in the global inventory armor slot)
+        dragon.equipArmor(player, new ItemStack(ModItems.DRAGON_ARMOR.get(), 1));
+        if (dragon.getBodyArmorItem().isEmpty()) {
+            helper.fail("Armor was not equipped");
+        }
+
+        // Summon a fresh dragon instance, as a whistle call would, and add it to the
+        // world so onAddedToWorld applies the armor attribute
+        var cap = player.getData(ModCapabilities.PLAYER_CAPABILITY);
+        cap.setPlayerInstance(player);
+        var summoned = cap.createDragonEntity(player, player.level, 0);
+        if (summoned == null) {
+            helper.fail("Failed to summon a fresh dragon");
+        }
+        player.level.addFreshEntity(summoned);
+
+        // The armor attribute must reflect the worn armor's protection
+        var armorAttr = summoned.getAttribute(Attributes.ARMOR);
+        if (armorAttr == null || armorAttr.getValue() <= 0) {
+            helper.fail("Armor attribute not applied on freshly summoned dragon");
         }
 
         helper.succeed();

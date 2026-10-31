@@ -174,6 +174,30 @@ abstract class DragonInventoryComponent extends DragonCombatComponent {
         return pStack.getItem() instanceof DragonArmorItem;
     }
 
+    @Override
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
+
+        if (!level().isClientSide) {
+            // Subscribe to the dragon's inventory container so that containerChanged
+            // fires on any slot change (e.g. armor equip/remove through the menu or
+            // equipArmor), keeping observers in sync.
+            getInventory().addListener(this);
+            // Apply the armor attribute right away so a freshly summoned/loaded dragon
+            // actually benefits from its armor instead of just displaying it.
+            setArmor();
+        }
+    }
+
+    @Override
+    public void onRemovedFromWorld() {
+        super.onRemovedFromWorld();
+
+        if (!level().isClientSide) {
+            getInventory().removeListener(this);
+        }
+    }
+
     /**
      * Handles container changes (inventory updates).
      */
