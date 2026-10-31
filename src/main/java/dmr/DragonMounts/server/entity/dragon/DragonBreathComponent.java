@@ -1,6 +1,7 @@
 package dmr.DragonMounts.server.entity.dragon;
 
 import dmr.DragonMounts.client.particle.particleoptions.DragonBreathParticleOptions;
+import dmr.DragonMounts.config.ServerConfig;
 import dmr.DragonMounts.network.packets.DragonBreathTargetSyncPacket;
 import dmr.DragonMounts.types.breath.DragonBreathType;
 import lombok.Getter;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.behavior.PositionTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -257,6 +259,11 @@ abstract class DragonBreathComponent extends DragonAnimationComponent {
      * Checks if the dragon can harm the target with its breath.
      */
     public boolean canHarmWithBreath(LivingEntity target) {
+        if (target instanceof Player player
+                && isTame()
+                && !ServerConfig.TAMED_DRAGON_ATTACK_PLAYERS) {
+            return false;
+        }
         return getOwner() == null
                 || target != getOwner() && getOwner().canAttack(target) && !target.isAlliedTo(getOwner());
     }

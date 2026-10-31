@@ -1,5 +1,6 @@
 package dmr.DragonMounts.server.entity.dragon;
 
+import dmr.DragonMounts.config.ServerConfig;
 import dmr.DragonMounts.server.ai.DragonAI;
 import java.util.Objects;
 import net.minecraft.core.registries.Registries;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -110,6 +112,11 @@ abstract class DragonCombatComponent extends DragonBreedableComponent {
      */
     @Override
     public void setTarget(LivingEntity target) {
+        if (target instanceof Player player
+                && isTame()
+                && !ServerConfig.TAMED_DRAGON_ATTACK_PLAYERS) {
+            return;
+        }
         super.setTarget(target);
         getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
         if (target != null) {

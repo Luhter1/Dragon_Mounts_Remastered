@@ -184,6 +184,15 @@ public class ServerConfig {
     @RangeConstraint(min = 2, max = 64)
     public static int MAX_FOLLOW_DISTANCE = 8;
 
+    @Config(
+            key = "tamed_dragon_attack_players",
+            comment = {
+                "Whether tamed dragons can attack players.",
+                "When false, tamed dragons will not target players, even in retaliation for attacking the dragon or its owner."
+            },
+            category = "behavior")
+    public static boolean TAMED_DRAGON_ATTACK_PLAYERS = false;
+
     // Initialize the config
     static {
         MOD_CONFIG_SPEC = ConfigProcessor.processConfig(ServerConfig.class);

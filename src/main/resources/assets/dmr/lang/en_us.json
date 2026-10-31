@@ -241,6 +241,8 @@
   "dmr.config.server.respawn_time.tooltip": "Time in seconds for a dragon to respawn after being killed.",
   "dmr.config.server.size_modifier": "Size Modifier",
   "dmr.config.server.size_modifier.tooltip": "Size modifier for all dragons.",
+  "dmr.config.server.tamed_dragon_attack_players": "Tamed Dragons Attack Players",
+  "dmr.config.server.tamed_dragon_attack_players.tooltip": "Whether tamed dragons can attack players. When false, tamed dragons will not target players, even in retaliation for attacking the dragon or its owner.",
   "dmr.config.server.upper_damage": "Upper Damage",
   "dmr.config.server.upper_damage.tooltip": "The maximum damage bonus for dragons with random stats.",
   "dmr.config.server.upper_max_health": "Upper Max Health",
