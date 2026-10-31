@@ -38,6 +38,10 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
@@ -105,17 +109,17 @@ abstract class DragonInventoryComponent extends DragonCombatComponent {
     public void equipChest(ItemStack stack, SoundSource source) {
         getInventory().setItem(DragonInventory.CHEST_SLOT, stack);
         setChest(true);
-        //		level()
-        //			.playSound(
-        //				null,
-        //				getX(),
-        //				getY(),
-        //				getZ(),
-        //				SoundEvents.CHEST_OPEN,
-        //				getSoundSource(),
-        //				1,
-        //				1
-        //			);
+        // level()
+        //     .playSound(
+        //         null,
+        //         getX(),
+        //         getY(),
+        //         getZ(),
+        //         SoundEvents.CHEST_OPEN,
+        //         getSoundSource(),
+        //         1,
+        //         1
+        //     );
     }
 
     /**
@@ -172,30 +176,6 @@ abstract class DragonInventoryComponent extends DragonCombatComponent {
      */
     public boolean isArmor(ItemStack pStack) {
         return pStack.getItem() instanceof DragonArmorItem;
-    }
-
-    @Override
-    public void onAddedToWorld() {
-        super.onAddedToWorld();
-
-        if (!level().isClientSide) {
-            // Subscribe to the dragon's inventory container so that containerChanged
-            // fires on any slot change (e.g. armor equip/remove through the menu or
-            // equipArmor), keeping observers in sync.
-            getInventory().addListener(this);
-            // Apply the armor attribute right away so a freshly summoned/loaded dragon
-            // actually benefits from its armor instead of just displaying it.
-            setArmor();
-        }
-    }
-
-    @Override
-    public void onRemovedFromWorld() {
-        super.onRemovedFromWorld();
-
-        if (!level().isClientSide) {
-            getInventory().removeListener(this);
-        }
     }
 
     /**
@@ -372,6 +352,33 @@ abstract class DragonInventoryComponent extends DragonCombatComponent {
             ItemStack itemstack = getItemBySlot(slot);
             setBodyArmorItem(stack);
             this.onEquipItem(slot, itemstack, stack);
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Event handlers instead of onAddedToWorld / onRemovedFromWorld
+    // ---------------------------------------------------------------
+    @EventBusSubscriber(modid = DMR.MOD_ID)
+    static class EventHandler {
+
+        @SubscribeEvent
+        public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
+            if (event.getEntity() instanceof DragonInventoryComponent dragon
+                    && !event.getLevel().isClientSide) {
+                var inv = dragon.getInventory();
+                inv.removeListener(dragon); // Идемпотентно: удаляем, если есть
+                inv.addListener(dragon);    // Добавляем заново
+                dragon.setArmor();
+            }
+        }
+
+        @SubscribeEvent
+        public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
+            if (event.getEntity() instanceof DragonInventoryComponent dragon
+                    && !event.getLevel().isClientSide) {
+                // Отписываемся от изменений инвентаря при выгрузке/удалении
+                dragon.getInventory().removeListener(dragon);
+            }
         }
     }
 }
