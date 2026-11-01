@@ -11,6 +11,7 @@ import java.util.Objects;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -137,8 +138,7 @@ public class DragonTests {
         var player = helper.makeTickingMockServerPlayerInLevel(GameType.DEFAULT_MODE);
         player.moveToCentre();
 
-        var target = helper.makeTickingMockServerPlayerInLevel(GameType.DEFAULT_MODE);
-        target.moveToCorner();
+        var target = helper.spawn(EntityType.ZOMBIE, DMRTestConstants.TEST_POS);
 
         var dragon = helper.spawn(ModEntities.DRAGON_ENTITY.get(), DMRTestConstants.TEST_POS);
         dragon.setBreed(DragonBreedsRegistry.getDefault());
